@@ -1,4 +1,5 @@
 <!DOCTYPE html><html lang="ne"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rent-it-out</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#5eb1ef"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--c:#5eb1ef;--d:#0b5cab;--bg:#f2f8fe}
 body{font-family:"Noto Sans Devanagari",system-ui,sans-serif;margin:0;background:var(--bg);color:#1c2733;font-size:18px;line-height:1.45}
@@ -36,7 +37,7 @@ const bs2ad=(y,m,d)=>iso(new ND(y,m-1,d).toJsDate());
 const ad2bs=s=>{const b=new ND(fromISO(s)).getBS();return{y:b.year,m:b.month+1,d:b.date}};
 const okBS=(y,m,d)=>{try{const b=ad2bs(bs2ad(y,m,d));return b.y==y&&b.m==m&&b.d==d}catch{return false}};
 const show=s=>{const b=ad2bs(s);return b.d+" "+T("ms")[b.m-1]+" "+b.y};
-const rs=n=>"रु "+Math.round(n).toLocaleString("en-IN");
+const rs=n=>(L=="en"?"Rs ":"रु ")+Math.round(n).toLocaleString("en-IN");
 const today=()=>iso(new Date());
 function selfTest(){try{if(bs2ad(2083,1,1)!="2026-04-14"||bs2ad(2083,4,1)!="2026-07-17")return false;
 const d=fromISO("2026-04-14");d.setDate(d.getDate()-1);const b=ad2bs(iso(d));return b.y==2082&&b.m==12&&b.d==30}catch{return false}}
@@ -70,9 +71,15 @@ async function mkpdf(t,ps,R0,share){const ov=document.createElement("div"),b=doc
  b.innerHTML=`<div style="border-bottom:3px solid #5eb1ef;padding-bottom:8px;margin-bottom:10px"><div style="font-size:26px;font-weight:700;color:#0b5cab">Rent-it-out</div><div style="font-size:18px">${T("stmt")}</div></div><table style="font-size:14px">${info.map(r=>`<tr><td style="width:34%"><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join("")}</table><div style="margin-top:12px">${stmtHTML(t,ps,R0)}</div><div class="s" style="margin-top:14px">${T("foot")}</div>`;
  document.body.append(b,ov);window.scrollTo(0,0);
  try{if(!window.html2canvas||!window.jspdf)throw 0;
+  const bt=b.getBoundingClientRect().top,rows=[...b.querySelectorAll("table")[1].rows].map(r=>{const q=r.getBoundingClientRect();return[q.top-bt,q.bottom-bt]});
   const c=await html2canvas(b,{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0});
-  const d=new window.jspdf.jsPDF("p","mm","a4"),W=210,H=297,ih=c.height*W/c.width,img=c.toDataURL("image/jpeg",.92),n=Math.max(1,Math.ceil(ih/H-.01));
-  for(let i=0;i<n;i++){if(i)d.addPage();d.addImage(img,"JPEG",0,-i*H,W,ih);d.setFontSize(8);d.text((i+1)+" / "+n,W-14,H-5)}
+  const d=new window.jspdf.jsPDF("p","mm","a4"),W=210,H=297,bw=b.offsetWidth,mm=W/bw,k=c.width/bw,tot=b.offsetHeight,hd=rows[0],hh=hd[1]-hd[0],cuts=rows.map(r=>r[1]);
+  const sl=(y0,y1)=>{const s=document.createElement("canvas");s.width=c.width;s.height=Math.max(1,Math.round((y1-y0)*k));s.getContext("2d").drawImage(c,0,Math.round(y0*k),c.width,s.height,0,0,c.width,s.height);return s.toDataURL("image/jpeg",.92)};
+  const pg=[];let y=0;
+  while(y<tot-1){const av=pg.length?(273/mm-hh):(283/mm),lim=y+av;if(lim>=tot){pg.push([y,tot]);break}
+   const ok=cuts.filter(v=>v>y+1&&v<=lim);const e=ok.length?Math.max(...ok):lim;pg.push([y,e]);y=e}
+  pg.forEach((q,i)=>{let top=0;if(i){d.addPage();top=10;d.addImage(sl(hd[0],hd[1]),"JPEG",0,top,W,hh*mm);top+=hh*mm}
+   d.addImage(sl(q[0],q[1]),"JPEG",0,top,W,(q[1]-q[0])*mm);d.setFontSize(8);d.text((i+1)+" / "+pg.length,W-14,H-6)});
   const name="Statement_"+t.name.replace(/[\\/:*?"<>|\s]+/g,"_")+"_"+today()+".pdf",bl=d.output("blob"),f=new File([bl],name,{type:"application/pdf"});
   if(share&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}
   const a=document.createElement("a");a.href=URL.createObjectURL(bl);a.download=name;document.body.appendChild(a);a.click();a.remove()
@@ -130,4 +137,5 @@ onAuthStateChanged(auth,u=>{unsub.forEach(f=>f());unsub=[];user=u;role=null;err=
    render()},f))}
  render()});
 render();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script></body></html>
