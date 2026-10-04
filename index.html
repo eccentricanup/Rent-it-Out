@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="ne"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rent-it-out</title>
+<style>
+:root{--c:#e57373;--d:#b71c1c;--bg:#fff4f3}
+body{font-family:"Noto Sans Devanagari",system-ui,sans-serif;margin:0;background:var(--bg);color:#2b1a1a;font-size:18px;line-height:1.45}
+header{background:var(--c);color:#fff;padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+main{padding:12px;max-width:640px;margin:auto}
+.k{background:#fff;border:1px solid #f3c9c6;border-radius:10px;padding:12px;margin:10px 0}
+button{background:var(--c);color:#fff;border:0;border-radius:8px;padding:11px 15px;font-size:17px;margin:4px 4px 0 0}
+button.o{background:#fff;color:var(--d);border:1px solid var(--c)}
+input,select{width:100%;padding:10px;margin:4px 0;font-size:17px;box-sizing:border-box;border:1px solid #d9a7a4;border-radius:8px}
+.r{color:var(--d);font-weight:700}.g{color:#2e7d32;font-weight:700}.row{display:flex;gap:6px}.s{font-size:15px;color:#7a5a58}
+table{width:100%;border-collapse:collapse;font-size:15px}td,th{padding:5px 3px;border-bottom:1px solid #f3dcda;text-align:left}
+</style></head><body>
+<header><span>Rent-it-out</span><span id="u" style="font-size:14px"></span></header><main id="m"></main>
+<script src="https://cdn.jsdelivr.net/npm/nepali-date-converter/dist/nepali-date-converter.umd.js"></script>
+<script type="module">
+
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,collection,addDoc,onSnapshot,updateDoc,arrayUnion,arrayRemove,doc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyCMoJ4JSOL5lwR0Inu0RlxkSBnOvs3-WF0",authDomain:"rent-it-now-e009b.firebaseapp.com",projectId:"rent-it-now-e009b",storageBucket:"rent-it-now-e009b.firebasestorage.app",messagingSenderId:"993896229264",appId:"1:993896229264:web:decae8a415f986b2b4eb15"});
+const auth=getAuth(app),db=getFirestore(app);
+const ND=(window.NepaliDate&&window.NepaliDate.default)||window.NepaliDate;
+const S={ne:{tag:"घर/पसल भाडा हिसाब राख्ने एप",login:"Google बाट लगइन",out:"बाहिर",dash:"ड्यासबोर्ड",addT:"+ भाडावाल",addP:"+ भुक्तानी",set:"सेटिङ",newT:"नयाँ भाडावाल",prop:"सम्पत्तिको नाम",unit:"कोठा / पसल / फ्ल्याट नं.",tname:"भाडावालको नाम",res:"आवासीय",com:"व्यावसायिक",rent:"मासिक भाडा (रु)",start:"भाडा सुरु मिति",adv:"अग्रिम (छैन भने खाली)",dep:"धरौटी (छैन भने खाली)",note:"छोटो टिप्पणी",save:"सुरक्षित गर्नुहोस्",req:"सम्पत्ति, नाम र भाडा अनिवार्य छ",recv:"भुक्तानी प्राप्त",amt:"रकम (रु)",amtreq:"रकम लेख्नुहोस्",pdate:"प्राप्त मिति",pnote:"टिप्पणी (वैकल्पिक)",cash:"नगद",bank:"बैंक ट्रान्सफर",esewa:"eSewa",khalti:"Khalti",cheque:"चेक",other:"अन्य",baddate:"मिति मिलेन, फेरि जाँच्नुहोस्",totpend:"कुल बाँकी रकम",sumline:"{0} भाडावालको बाँकी · जम्मा {1} भाडावाल",pend:"बाँकी",mo:"महिना",late:"दिन ढिलो",none:"बाँकी छैन",advl:"अग्रिम",next:"अर्को तिर्ने मिति",soon:"5 दिनभित्र",empty:"अहिले कुनै भाडावाल छैन। माथिको “+ भाडावाल” थिच्नुहोस्।",emptyV:"अहिले कुनै भाडावाल थपिएको छैन।",monthly:"महिनावार हिसाब",from:"अवधि सुरु",due:"तिर्ने मिति",paid:"तिरियो",bal:"बाँकी",fromadv:"अग्रिमबाट",nocy:"अहिलेसम्म कुनै महिना पूरा भएको छैन",totbal:"कुल बाँकी",creditl:"बाँकी अग्रिम",rcvd:"प्राप्त भुक्तानी",nothing:"केही छैन",rentl:"भाडा",startl:"सुरु",depl:"धरौटी",lang:"भाषा",role:"तपाईंको पहुँच",admin:"प्रशासक (हेर्ने र लेख्ने)",viewer:"हेर्न मात्र",noaccess:"यो खातालाई अनुमति छैन। प्रशासकलाई आफ्नो इमेल थप्न भन्नुहोस्।",datefail:"मिति जाँच असफल भयो। यो एप अहिले प्रयोग नगर्नुहोस्।",mem:"परिवारका सदस्य",memhelp:"प्रशासकले अरूको पहुँच परिवर्तन गर्न सक्छन्। स्थायी प्रशासक परिवर्तन हुँदैन।",fixed:"स्थायी प्रशासक",emailph:"नयाँ सदस्यको Gmail",addmem:"सदस्य थप्नुहोस्",radm:"प्रशासक",rview:"हेर्न मात्र",bademail:"इमेल मिलेन",exists:"यो सदस्य पहिल्यै सूचीमा छ",confirmrm:"यो सदस्यलाई हटाउने?",ms:["बैशाख","जेठ","असार","श्रावण","भदौ","असोज","कार्तिक","मंसिर","पुष","माघ","फागुन","चैत"]},
+en:{tag:"Rent tracking for houses and shops",login:"Sign in with Google",out:"Sign out",dash:"Dashboard",addT:"+ Tenant",addP:"+ Payment",set:"Settings",newT:"New tenant",prop:"Property name",unit:"Room / shop / flat no.",tname:"Tenant name",res:"Residential",com:"Commercial",rent:"Monthly rent (NPR)",start:"Rent start date",adv:"Advance (leave blank if none)",dep:"Security deposit (blank if none)",note:"Short note",save:"Save",req:"Property, name and rent are required",recv:"Payment received",amt:"Amount (NPR)",amtreq:"Enter the amount",pdate:"Date received",pnote:"Note (optional)",cash:"Cash",bank:"Bank transfer",esewa:"eSewa",khalti:"Khalti",cheque:"Cheque",other:"Other",baddate:"Date not valid, please check",totpend:"Total pending",sumline:"{0} tenants owe rent · {1} tenants in total",pend:"Pending",mo:"months",late:"days late",none:"Nothing pending",advl:"Advance",next:"Next due date",soon:"within 5 days",empty:"No tenants yet. Tap “+ Tenant” above.",emptyV:"No tenants have been added yet.",monthly:"Month-wise account",from:"Period start",due:"Due date",paid:"Paid",bal:"Balance",fromadv:"from advance",nocy:"No month has been completed yet",totbal:"Total pending",creditl:"Advance remaining",rcvd:"Payments received",nothing:"None",rentl:"Rent",startl:"Start",depl:"Deposit",lang:"Language",role:"Your access",admin:"Admin (view and edit)",viewer:"View only",noaccess:"This account has no access. Ask an admin to add your email.",datefail:"Date check failed. Please do not use the app and tell the developer.",mem:"Family members",memhelp:"Admins can change other members' access. Fixed admins cannot be changed.",fixed:"Fixed admin",emailph:"New member's Gmail",addmem:"Add member",radm:"Admin",rview:"View only",bademail:"Invalid email",exists:"This member is already in the list",confirmrm:"Remove this member?",ms:["Baisakh","Jestha","Ashadh","Shrawan","Bhadra","Ashwin","Kartik","Mangsir","Poush","Magh","Falgun","Chaitra"]}};
+let L=localStorage.getItem("lang");
+const T=(k,...a)=>{let s=(S[L]||S.ne)[k]??k;a.forEach((v,i)=>s=s.replace("{"+i+"}",v));return s};
+const MODES=["cash","bank","esewa","khalti","cheque","other"];
+const pad=n=>String(n).padStart(2,"0"),$=id=>document.getElementById(id),g=id=>$(id).value;
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const fromISO=s=>{const[a,b,c]=s.split("-");return new Date(+a,b-1,+c)};
+const days=(a,b)=>Math.round((fromISO(b)-fromISO(a))/864e5);
+const bs2ad=(y,m,d)=>iso(new ND(y,m-1,d).toJsDate());
+const ad2bs=s=>{const b=new ND(fromISO(s)).getBS();return{y:b.year,m:b.month+1,d:b.date}};
+const okBS=(y,m,d)=>{try{const b=ad2bs(bs2ad(y,m,d));return b.y==y&&b.m==m&&b.d==d}catch{return false}};
+const show=s=>{const b=ad2bs(s);return b.d+" "+T("ms")[b.m-1]+" "+b.y};
+const rs=n=>"रु "+Math.round(n).toLocaleString("en-IN");
+const today=()=>iso(new Date());
+function selfTest(){try{if(bs2ad(2083,1,1)!="2026-04-14"||bs2ad(2083,4,1)!="2026-07-17")return false;
+const d=fromISO("2026-04-14");d.setDate(d.getDate()-1);const b=ad2bs(iso(d));return b.y==2082&&b.m==12&&b.d==30}catch{return false}}
+function cs(s,k){const i=s.m-1+k,y=s.y+Math.floor(i/12),m=i%12+1;let d=s.d;while(!okBS(y,m,d))d--;return bs2ad(y,m,d)}
+function ledger(t,pays){
+ const s=ad2bs(t.start),T=today();let adv=+t.advance||0,pay=pays.reduce((a,p)=>a+p.amt,0),cy=[],k=0;
+ while(k<600){const due=cs(s,k+1);if(due>T)break;
+  const fa=Math.min(t.rent,adv);adv-=fa;const fp=Math.min(t.rent-fa,pay);pay-=fp;
+  cy.push({from:cs(s,k),due,fa,fp,bal:t.rent-fa-fp});k++}
+ const first=cy.find(c=>c.bal>0),next=cs(s,k+1);
+ return{cy,pend:cy.reduce((a,c)=>a+c.bal,0),credit:adv+pay,next,unpaid:cy.filter(c=>c.bal>0).length,late:first?days(first.due,T):0,soon:days(T,next)<=5}}
+let user=null,role=null,RL={owners:[],admins:[],viewers:[]},TN=[],PY=[],V="home",SEL=null,err="";
+const bsIn=(id,s)=>{s=s||ad2bs(today());return`<div class="row"><input id="${id}y" type="number" value="${s.y}"><select id="${id}m">${T("ms").map((n,i)=>`<option value="${i+1}"${i+1==s.m?" selected":""}>${n}</option>`).join("")}</select><input id="${id}d" type="number" value="${s.d}"></div>`};
+const rd=id=>{const y=+g(id+"y"),m=+g(id+"m"),d=+g(id+"d");if(!okBS(y,m,d)){alert(T("baddate"));throw 0}return bs2ad(y,m,d)};
+const nm=t=>t.property+" · "+t.unit+" — "+t.name;
+const tr=k=>S[L]&&S[L][k]!==undefined?S[L][k]:k;
+function render(){
+ const M=$("m");$("u").innerHTML=user&&L?`<a href="#" id="so" style="color:#fff">${T("out")}</a>`:"";
+ if(!L){M.innerHTML=`<div class="k"><p><b>भाषा रोज्नुहोस् / Choose language</b></p><button id="ln">नेपाली</button><button id="le">English</button></div>`;$("ln").onclick=()=>{L="ne";localStorage.setItem("lang",L);render()};$("le").onclick=()=>{L="en";localStorage.setItem("lang",L);render()};return}
+ if(!selfTest()){M.innerHTML=`<div class="k r">${T("datefail")}</div>`;return}
+ if(!user){M.innerHTML=`<div class="k"><p>${T("tag")}</p><button id="in">${T("login")}</button></div>`;$("in").onclick=()=>signInWithPopup(auth,new GoogleAuthProvider());return}
+ if(err||!role){M.innerHTML=`<div class="k r">${err||"..."}</div>`;const s0=$("so");if(s0)s0.onclick=e=>{e.preventDefault();signOut(auth)};return}
+ const adm=role=="admin",B=(v,k)=>`<button class="${V==v?"":"o"}" onclick="go('${v}')">${T(k)}</button>`;
+ const nav=`<div>${B("home","dash")}${adm?B("addT","addT")+B("addP","addP"):""}${B("set","set")}</div>`;
+ if(V=="addT"&&adm){M.innerHTML=nav+`<div class="k"><b>${T("newT")}</b><input id="p" placeholder="${T("prop")}"><input id="un" placeholder="${T("unit")}"><input id="n" placeholder="${T("tname")}"><select id="ty"><option value="res">${T("res")}</option><option value="com">${T("com")}</option></select><input id="rt" type="number" placeholder="${T("rent")}"><div class="s">${T("start")}</div>${bsIn("st")}<input id="ad" type="number" placeholder="${T("adv")}"><input id="dp" type="number" placeholder="${T("dep")}"><input id="nt" placeholder="${T("note")}"><button id="sv">${T("save")}</button></div>`;
+  $("sv").onclick=async()=>{try{const t={property:g("p").trim(),unit:g("un").trim(),name:g("n").trim(),type:g("ty"),rent:+g("rt"),start:rd("st"),advance:+g("ad")||0,deposit:+g("dp")||0,note:g("nt")};
+   if(!t.property||!t.name||!(t.rent>0)){alert(T("req"));return}await addDoc(collection(db,"tenants"),t);go("home")}catch(e){if(e)alert(e.message)}}}
+ else if(V=="addP"&&adm){M.innerHTML=nav+`<div class="k"><b>${T("recv")}</b><select id="tn">${TN.map(t=>`<option value="${t.id}"${t.id==SEL?" selected":""}>${nm(t)}</option>`).join("")}</select><input id="am" type="number" placeholder="${T("amt")}"><div class="s">${T("pdate")}</div>${bsIn("pd")}<select id="md">${MODES.map(x=>`<option value="${x}">${T(x)}</option>`).join("")}</select><input id="pn" placeholder="${T("pnote")}"><button id="sp">${T("save")}</button></div>`;
+  $("sp").onclick=async()=>{try{const a=+g("am");if(!(a>0)){alert(T("amtreq"));return}await addDoc(collection(db,"payments"),{tenantId:g("tn"),amt:a,date:rd("pd"),mode:g("md"),note:g("pn")});go("home")}catch(e){if(e)alert(e.message)}}}
+ else if(V=="set"){const em=x=>`<span style="flex:1;word-break:break-all">${x}</span>`;
+  const mem=adm?`<div class="k"><b>${T("mem")}</b><div class="s">${T("memhelp")}</div>`+RL.owners.map(e=>`<div class="row" style="align-items:center;margin-top:6px">${em(e)}<span class="s">${T("fixed")}</span></div>`).join("")+[...RL.admins.map(e=>[e,"admin"]),...RL.viewers.map(e=>[e,"viewer"])].map(([e,r])=>`<div class="row" style="align-items:center;margin-top:6px">${em(e)}<select class="rs" data-e="${e}" data-r="${r}" style="width:auto"><option value="admin"${r=="admin"?" selected":""}>${T("radm")}</option><option value="viewer"${r=="viewer"?" selected":""}>${T("rview")}</option></select><button class="o rm" data-e="${e}" data-r="${r}">✕</button></div>`).join("")+`<input id="ne" type="email" placeholder="${T("emailph")}"><select id="nr"><option value="viewer">${T("rview")}</option><option value="admin">${T("radm")}</option></select><button id="am2">${T("addmem")}</button></div>`:"";
+  M.innerHTML=nav+`<div class="k"><b>${T("lang")}</b><select id="sl"><option value="ne"${L=="ne"?" selected":""}>नेपाली</option><option value="en"${L=="en"?" selected":""}>English</option></select></div><div class="k"><b>${T("role")}</b><div>${adm?T("admin"):T("viewer")}</div><div class="s">${user.email}</div></div>`+mem;
+  $("sl").onchange=()=>{L=g("sl");localStorage.setItem("lang",L);render()};
+  if(adm){const F=x=>x=="admin"?"admins":"viewers";
+   const upd=async(e,from,to)=>{try{const u={};if(from)u[F(from)]=arrayRemove(e);if(to)u[F(to)]=arrayUnion(e);await updateDoc(doc(db,"config","roles"),u)}catch(x){alert(x.message)}};
+   document.querySelectorAll(".rs").forEach(s=>s.onchange=()=>upd(s.dataset.e,s.dataset.r,s.value));
+   document.querySelectorAll(".rm").forEach(b=>b.onclick=()=>{if(confirm(T("confirmrm")))upd(b.dataset.e,b.dataset.r,null)});
+   $("am2").onclick=()=>{const e=g("ne").trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){alert(T("bademail"));return}
+    if([...RL.owners,...RL.admins,...RL.viewers].map(x=>x.toLowerCase()).includes(e)){alert(T("exists"));return}upd(e,null,g("nr"))}}}
+ else if(V=="det"){const t=TN.find(x=>x.id==SEL);if(!t){go("home");return}const ps=PY.filter(p=>p.tenantId==t.id).sort((a,b)=>a.date<b.date?-1:1),Lg=ledger(t,ps);
+  M.innerHTML=nav+`<div class="k"><b>${nm(t)}</b><div class="s">${tr(t.type)} · ${T("rentl")} ${rs(t.rent)} · ${T("startl")} ${show(t.start)}<br>${T("advl")} ${rs(t.advance)} · ${T("depl")} ${rs(t.deposit)}${t.note?"<br>"+t.note:""}</div></div>
+  <div class="k"><b>${T("monthly")}</b><table><tr><th>${T("from")}</th><th>${T("due")}</th><th>${T("paid")}</th><th>${T("bal")}</th></tr>${Lg.cy.map(c=>`<tr><td>${show(c.from)}</td><td>${show(c.due)}</td><td>${rs(c.fa+c.fp)}${c.fa?`<div class="s">${T("fromadv")} ${rs(c.fa)}</div>`:""}</td><td class="${c.bal?"r":"g"}">${rs(c.bal)}</td></tr>`).join("")||`<tr><td colspan="4">${T("nocy")}</td></tr>`}</table>
+  <p>${T("totbal")}: <span class="${Lg.pend?"r":"g"}">${rs(Lg.pend)}</span>${Lg.credit?` · ${T("creditl")}: <span class="g">${rs(Lg.credit)}</span>`:""}</p></div>
+  <div class="k"><b>${T("rcvd")}</b>${ps.map(p=>`<div>${show(p.date)} — ${rs(p.amt)} (${T(p.mode)})${p.note?" · "+p.note:""}</div>`).join("")||`<div class="s">${T("nothing")}</div>`}${adm?`<button onclick="go('addP','${t.id}')">${T("addP")}</button>`:""}</div>`}
+ else{const R=TN.map(t=>({t,L:ledger(t,PY.filter(p=>p.tenantId==t.id))})).sort((a,b)=>b.L.pend-a.L.pend);
+  const tot=R.reduce((a,r)=>a+r.L.pend,0),late=R.filter(r=>r.L.pend>0).length;
+  M.innerHTML=nav+`<div class="k"><div class="s">${T("totpend")}</div><div class="${tot?"r":"g"}" style="font-size:28px">${rs(tot)}</div><div class="s">${T("sumline",late,TN.length)}</div></div>`+(R.map(({t,L:x})=>`<div class="k" onclick="go('det','${t.id}')"><b>${nm(t)}</b><br>${x.pend?`<span class="r">${T("pend")} ${rs(x.pend)}</span> · ${x.unpaid} ${T("mo")} · ${x.late} ${T("late")}`:`<span class="g">${T("none")}</span>`}${x.credit?` · ${T("advl")} ${rs(x.credit)}`:""}<div class="s">${T("next")}: ${show(x.next)}${x.soon?` · <b class="r">${T("soon")}</b>`:""}</div></div>`).join("")||`<div class="k">${adm?T("empty"):T("emptyV")}</div>`)}
+ const so=$("so");if(so)so.onclick=e=>{e.preventDefault();signOut(auth)}}
+window.go=(v,id)=>{V=v;if(id)SEL=id;render()};
+let unsub=[];
+onAuthStateChanged(auth,u=>{unsub.forEach(f=>f());unsub=[];user=u;role=null;err="";TN=[];PY=[];RL={owners:[],admins:[],viewers:[]};
+ if(u){let started=false;const e=(u.email||"").toLowerCase(),has=a=>(a||[]).map(x=>x.toLowerCase()).includes(e),f=()=>{err=T("noaccess");render()};
+  unsub.push(onSnapshot(doc(db,"config","roles"),r=>{const d=r.exists()?r.data():{};RL={owners:d.owners||[],admins:d.admins||[],viewers:d.viewers||[]};
+   role=has(RL.owners)||has(RL.admins)?"admin":has(RL.viewers)?"viewer":null;err=role?"":T("noaccess");
+   if(role&&!started){started=true;
+    unsub.push(onSnapshot(collection(db,"tenants"),s=>{TN=s.docs.map(x=>({id:x.id,...x.data()}));render()},f));
+    unsub.push(onSnapshot(collection(db,"payments"),s=>{PY=s.docs.map(x=>({id:x.id,...x.data()}));render()},f))}
+   render()},f))}
+ render()});
+render();
+</script></body></html>
