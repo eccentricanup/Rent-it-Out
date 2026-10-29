@@ -1,5 +1,5 @@
 // Rent-it-out service worker v2: always checks the server first (bypassing the browser cache), falls back to the saved copy offline.
-const C="rio-v2",H=["https://www.gstatic.com/firebasejs/","https://cdn.jsdelivr.net/","https://cdnjs.cloudflare.com/"];
+const C="rio-v3",H=["https://www.gstatic.com/firebasejs/","https://cdn.jsdelivr.net/","https://cdnjs.cloudflare.com/"];
 self.addEventListener("install",()=>self.skipWaiting());
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{const r=e.request,u=r.url,same=u.startsWith(self.location.origin);
